@@ -6,6 +6,7 @@ import Header from '../components/Header';
 import TimeGrid from '../components/TimeGrid';
 import AddTaskModal from '../components/AddTaskModal';
 import EditTaskModal from '../components/EditTaskModal';
+import VoiceRecordingInterface from '../components/VoiceRecordingInterface';
 import { Task } from '../types';
 import { useTaskManager } from '../hooks/useTaskManager';
 
@@ -239,6 +240,13 @@ export default function HomeScreen() {
           }}
           onUpdateTask={updateTask}
           availableSlots={getAvailableTimeSlots(1, editingTask?.id)}
+        />
+
+        <VoiceRecordingInterface
+          onRecordingComplete={(uri) => {
+            console.log('Recording completed with URI:', uri);
+            // TODO: In the future, this could process the audio to extract task information
+          }}
         />
       </View>
     </ActionSheetProvider>
