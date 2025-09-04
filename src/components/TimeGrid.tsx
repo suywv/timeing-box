@@ -22,6 +22,14 @@ interface TimeGridProps {
   onCellLongPress?: (hour: number) => void;
   onTaskPress?: (task: Task) => void;
   onTaskLongPress?: (task: Task) => void;
+  selectedTaskId?: number | null;
+  onMoveLeft?: (taskId: number) => void;
+  onMoveRight?: (taskId: number) => void;
+  onIncreaseDuration?: (taskId: number) => void;
+  onDecreaseDuration?: (taskId: number) => void;
+  onToggleComplete?: (taskId: number) => void;
+  onEditTask?: (task: Task) => void;
+  onDeleteTask?: (taskId: number) => void;
 }
 
 export default function TimeGrid({ 
@@ -29,7 +37,15 @@ export default function TimeGrid({
   onCellPress, 
   onCellLongPress,
   onTaskPress,
-  onTaskLongPress
+  onTaskLongPress,
+  selectedTaskId,
+  onMoveLeft,
+  onMoveRight,
+  onIncreaseDuration,
+  onDecreaseDuration,
+  onToggleComplete,
+  onEditTask,
+  onDeleteTask
 }: TimeGridProps) {
   const { generateTimeSlots, formatTimeSlot } = useTimeGrid();
   
@@ -113,6 +129,14 @@ export default function TimeGrid({
         startCol={startCol}
         onTaskPress={onTaskPress}
         onTaskLongPress={onTaskLongPress}
+        showActions={selectedTaskId === task.id}
+        onMoveLeft={() => onMoveLeft?.(task.id)}
+        onMoveRight={() => onMoveRight?.(task.id)}
+        onIncreaseDuration={() => onIncreaseDuration?.(task.id)}
+        onDecreaseDuration={() => onDecreaseDuration?.(task.id)}
+        onToggleComplete={() => onToggleComplete?.(task.id)}
+        onEdit={() => onEditTask?.(task)}
+        onDelete={() => onDeleteTask?.(task.id)}
       />
     );
   };

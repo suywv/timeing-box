@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { COLORS, LAYOUT } from '../constants';
 import { Task } from '../types';
+import TaskActions from './TaskActions';
 
 interface TaskBlockProps {
   task: Task;
@@ -19,6 +20,14 @@ interface TaskBlockProps {
   startCol: number;
   onTaskPress?: (task: Task) => void;
   onTaskLongPress?: (task: Task) => void;
+  showActions?: boolean;
+  onMoveLeft?: () => void;
+  onMoveRight?: () => void;
+  onIncreaseDuration?: () => void;
+  onDecreaseDuration?: () => void;
+  onToggleComplete?: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 export default function TaskBlock({
@@ -30,6 +39,14 @@ export default function TaskBlock({
   startCol,
   onTaskPress,
   onTaskLongPress,
+  showActions = false,
+  onMoveLeft,
+  onMoveRight,
+  onIncreaseDuration,
+  onDecreaseDuration,
+  onToggleComplete,
+  onEdit,
+  onDelete,
 }: TaskBlockProps) {
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
@@ -142,6 +159,20 @@ export default function TaskBlock({
           <Text style={[styles.taskTime, { color: textColor }]} numberOfLines={1}>
             {timeDisplay}
           </Text>
+          {showActions && onMoveLeft && onMoveRight && onIncreaseDuration && onDecreaseDuration && onToggleComplete && onEdit && onDelete && (
+            <View style={styles.actionsContainer}>
+              <TaskActions
+                task={task}
+                onMoveLeft={onMoveLeft}
+                onMoveRight={onMoveRight}
+                onIncreaseDuration={onIncreaseDuration}
+                onDecreaseDuration={onDecreaseDuration}
+                onToggleComplete={onToggleComplete}
+                onEdit={onEdit}
+                onDelete={onDelete}
+              />
+            </View>
+          )}
         </View>
       )}
       </Animated.View>
@@ -187,5 +218,8 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     marginTop: 2,
     textAlign: I18nManager.isRTL ? 'right' : 'left',
+  },
+  actionsContainer: {
+    marginTop: 8,
   },
 });
