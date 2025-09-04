@@ -12,6 +12,7 @@ import * as Haptics from 'expo-haptics';
 import { COLORS, LAYOUT } from '../constants';
 import { useTimeGrid } from '../hooks/useTimeGrid';
 import { Task } from '../types';
+import TaskBlock from './TaskBlock';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -19,16 +20,34 @@ interface TimeGridProps {
   tasks?: Task[];
   onCellPress?: (hour: number) => void;
   onCellLongPress?: (hour: number) => void;
+  onTaskPress?: (task: Task) => void;
+  onTaskLongPress?: (task: Task) => void;
 }
 
 export default function TimeGrid({ 
   tasks = [], 
   onCellPress, 
-  onCellLongPress 
+  onCellLongPress,
+  onTaskPress,
+  onTaskLongPress
 }: TimeGridProps) {
   const { generateTimeSlots, formatTimeSlot } = useTimeGrid();
   
   const timeSlots = useMemo(() => generateTimeSlots(tasks), [tasks, generateTimeSlots]);
+  
+  // Generate unique task blocks (avoid duplicates for multi-hour tasks)
+  const taskBlocks = useMemo(() => {
+    const uniqueTasks = new Map<number, Task>();
+    
+    tasks.forEach(task => {
+      // Only store the task once using its ID as the key
+      if (!uniqueTasks.has(task.id)) {
+        uniqueTasks.set(task.id, task);
+      }
+    });
+    
+    return Array.from(uniqueTasks.values());
+  }, [tasks]);
   
   // Calculate responsive cell dimensions
   const gridPadding = LAYOUT.padding * 2;
@@ -65,25 +84,36 @@ export default function TimeGrid({
             left: adjustedCol * (cellWidth + gridSpacing),
             top: row * (cellHeight + gridSpacing),
           },
-          timeSlot.isOccupied && styles.occupiedCell,
-          timeSlot.task && { backgroundColor: timeSlot.task.color + '40' }, // Add transparency
+          // Remove task-specific styling since TaskBlock handles visual representation
         ]}
         onPress={() => handleCellPress(timeSlot.hour)}
         onLongPress={() => handleCellLongPress(timeSlot.hour)}
         activeOpacity={0.8}
       >
-        <Text style={[
-          styles.hourText,
-          timeSlot.isOccupied && styles.occupiedText
-        ]}>
+        <Text style={styles.hourText}>
           {timeSlot.hour.toString().padStart(2, '0')}:00
         </Text>
-        {timeSlot.task && (
-          <Text style={styles.taskName} numberOfLines={1}>
-            {timeSlot.task.name}
-          </Text>
-        )}
       </TouchableOpacity>
+    );
+  };
+  
+  const renderTaskBlock = (task: Task) => {
+    // Calculate task position
+    const startRow = Math.floor(task.startSlot / 4);
+    const startCol = task.startSlot % 4;
+    
+    return (
+      <TaskBlock
+        key={`task-${task.id}`}
+        task={task}
+        cellWidth={cellWidth}
+        cellHeight={cellHeight}
+        gridSpacing={gridSpacing}
+        startRow={startRow}
+        startCol={startCol}
+        onTaskPress={onTaskPress}
+        onTaskLongPress={onTaskLongPress}
+      />
     );
   };
   
@@ -104,7 +134,11 @@ export default function TimeGrid({
           height: gridHeight,
         }
       ]}>
+        {/* Render empty grid cells */}
         {timeSlots.map((timeSlot, index) => renderCell(timeSlot, index))}
+        
+        {/* Render task blocks as overlays */}
+        {taskBlocks.map(task => renderTaskBlock(task))}
       </View>
     </ScrollView>
   );
@@ -143,24 +177,10 @@ const styles = StyleSheet.create({
     elevation: 2,
     padding: 4,
   },
-  occupiedCell: {
-    borderColor: COLORS.primary,
-    borderWidth: 2,
-  },
   hourText: {
     fontSize: 12,
     fontWeight: '600',
     color: COLORS.text,
     textAlign: 'center',
-    marginBottom: 2,
-  },
-  occupiedText: {
-    color: COLORS.primary,
-  },
-  taskName: {
-    fontSize: 10,
-    color: COLORS.textSecondary,
-    textAlign: 'center',
-    marginTop: 2,
   },
 });

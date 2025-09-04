@@ -5,11 +5,11 @@ import TimeGrid from '../components/TimeGrid';
 import { Task } from '../types';
 
 export default function HomeScreen() {
-  // Sample tasks to demonstrate the TimeGrid
+  // Sample tasks to demonstrate the TimeGrid with various scenarios
   const [tasks] = useState<Task[]>([
     {
       id: 1,
-      name: 'Morning Workout',
+      name: 'Morning Workout Session',
       startSlot: 6,
       duration: 2,
       completed: false,
@@ -33,11 +33,27 @@ export default function HomeScreen() {
     },
     {
       id: 4,
-      name: 'Focus Time',
+      name: 'Deep Focus Work Time - Important Project',
       startSlot: 14,
       duration: 3,
       completed: false,
       color: '#96CEB4',
+    },
+    {
+      id: 5,
+      name: 'Daily Review',
+      startSlot: 18,
+      duration: 1,
+      completed: true,
+      color: '#FECA57',
+    },
+    {
+      id: 6,
+      name: 'Family Dinner',
+      startSlot: 19,
+      duration: 2,
+      completed: false,
+      color: '#FF9FF3',
     },
   ]);
 
@@ -49,6 +65,14 @@ export default function HomeScreen() {
     Alert.alert('Long Press', `Long pressed on ${hour}:00`);
   };
 
+  const handleTaskPress = (task: Task) => {
+    Alert.alert('Task Selected', `You selected "${task.name}" (${task.startSlot}:00-${task.startSlot + task.duration}:00)`);
+  };
+
+  const handleTaskLongPress = (task: Task) => {
+    Alert.alert('Task Long Press', `Long pressed on "${task.name}"`);
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{APP_NAME}</Text>
@@ -57,6 +81,8 @@ export default function HomeScreen() {
         tasks={tasks}
         onCellPress={handleCellPress}
         onCellLongPress={handleCellLongPress}
+        onTaskPress={handleTaskPress}
+        onTaskLongPress={handleTaskLongPress}
       />
     </View>
   );
