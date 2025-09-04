@@ -177,7 +177,7 @@ export default function EditTaskModal({
             <View style={styles.field}>
               <Text style={styles.label}>Task Name</Text>
               <TextInput
-                style={[styles.input, errors.name && styles.inputError]}
+                style={[styles.input, errors.name ? styles.inputError : null]}
                 value={name}
                 onChangeText={setName}
                 placeholder="Enter task name..."
