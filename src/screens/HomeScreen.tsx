@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import { APP_NAME, COLORS, LAYOUT } from '../constants';
+import Header from '../components/Header';
 import TimeGrid from '../components/TimeGrid';
 import AddTaskModal from '../components/AddTaskModal';
 import EditTaskModal from '../components/EditTaskModal';
@@ -168,19 +169,31 @@ export default function HomeScreen() {
     }
   };
 
+  const handleSettingsPress = () => {
+    Alert.alert('Settings', 'Settings functionality will be implemented soon');
+  };
+
+  const handleCalendarPress = () => {
+    Alert.alert('Calendar', 'Calendar functionality will be implemented soon');
+  };
+
   return (
     <ActionSheetProvider>
       <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>{APP_NAME}</Text>
-          <Text style={styles.subtitle}>Tap empty cells to add tasks</Text>
+        <Header 
+          onSettingsPress={handleSettingsPress}
+          onCalendarPress={handleCalendarPress}
+        />
+        
+        <View style={styles.content}>
+          <Text style={styles.subtitle}>انقر على الخلايا الفارغة لإضافة المهام</Text>
           
           <View style={styles.headerActions}>
             <TouchableOpacity
               style={styles.addButton}
               onPress={() => setAddModalVisible(true)}
             >
-              <Text style={styles.addButtonText}>+ Add Task</Text>
+              <Text style={styles.addButtonText}>+ إضافة مهمة</Text>
             </TouchableOpacity>
             
             {canUndo && (
@@ -188,7 +201,7 @@ export default function HomeScreen() {
                 style={styles.undoButton}
                 onPress={handleUndoDelete}
               >
-                <Text style={styles.undoButtonText}>↺ Undo</Text>
+                <Text style={styles.undoButtonText}>↺ تراجع</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -237,26 +250,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
-  header: {
-    paddingTop: 50,
+  content: {
     paddingHorizontal: LAYOUT.padding,
-    paddingBottom: LAYOUT.padding,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
-    backgroundColor: COLORS.surface,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: COLORS.text,
-    textAlign: 'center',
-    marginBottom: LAYOUT.margin / 2,
+    paddingTop: LAYOUT.padding / 2,
   },
   subtitle: {
     fontSize: 14,
     color: COLORS.textSecondary,
     textAlign: 'center',
     marginBottom: LAYOUT.padding,
+    fontWeight: '500',
   },
   headerActions: {
     flexDirection: 'row',

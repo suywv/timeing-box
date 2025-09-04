@@ -11,6 +11,23 @@ export const formatTime = (date: Date): string => {
   });
 };
 
+export const formatArabicDate = (date: Date): string => {
+  return date.toLocaleDateString('ar-SA', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+};
+
+export const formatArabicDateShort = (date: Date): string => {
+  return date.toLocaleDateString('ar-SA', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  });
+};
+
 // Re-export task collision utilities
 export * from './taskCollision';
 
