@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text, View, I18nManager } from 'react-native';
+import { StyleSheet, View, I18nManager } from 'react-native';
+import { AppProvider } from './src/context/AppContext';
 import HomeScreen from './src/screens/HomeScreen';
 
 // Enable RTL layout if needed
@@ -9,9 +10,11 @@ if (!I18nManager.isRTL) {
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <HomeScreen />
-    </View>
+    <AppProvider>
+      <View style={styles.container}>
+        <HomeScreen />
+      </View>
+    </AppProvider>
   );
 }
 
