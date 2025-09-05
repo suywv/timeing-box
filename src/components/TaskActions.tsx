@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -22,7 +22,7 @@ interface TaskActionsProps {
   onDelete: () => void;
 }
 
-export default function TaskActions({
+const TaskActions = React.memo<TaskActionsProps>(({
   task,
   onMoveLeft,
   onMoveRight,
@@ -31,12 +31,11 @@ export default function TaskActions({
   onToggleComplete,
   onEdit,
   onDelete,
-}: TaskActionsProps) {
+}) => {
   const { showActionSheetWithOptions } = useActionSheet();
 
-  const handleActionPress = async () => {
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    
+  // Memoize action sheet options
+  const actionSheetOptions = useMemo(() => {
     const options = [
       'Edit Task',
       'Move Earlier (←)',
@@ -48,16 +47,21 @@ export default function TaskActions({
       'Cancel',
     ];
 
-    const destructiveButtonIndex = 6; // Delete Task
-    const cancelButtonIndex = 7;
+    return {
+      options,
+      destructiveButtonIndex: 6, // Delete Task
+      cancelButtonIndex: 7,
+      title: `Task: ${task.name}`,
+      message: `${task.startSlot}:00 - ${task.startSlot + task.duration}:00 (${task.duration}h)`,
+    };
+  }, [task.completed, task.name, task.startSlot, task.duration]);
+
+  const handleActionPress = useCallback(async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     showActionSheetWithOptions(
       {
-        options,
-        cancelButtonIndex,
-        destructiveButtonIndex,
-        title: `Task: ${task.name}`,
-        message: `${task.startSlot}:00 - ${task.startSlot + task.duration}:00 (${task.duration}h)`,
+        ...actionSheetOptions,
         userInterfaceStyle: 'light',
       },
       (selectedIndex) => {
@@ -86,9 +90,9 @@ export default function TaskActions({
         }
       }
     );
-  };
+  }, [actionSheetOptions, showActionSheetWithOptions, onEdit, onMoveLeft, onMoveRight, onIncreaseDuration, onDecreaseDuration, onToggleComplete, onDelete]);
 
-  const confirmDelete = () => {
+  const confirmDelete = useCallback(() => {
     Alert.alert(
       'Delete Task',
       `Are you sure you want to delete "${task.name}"? This action can be undone.`,
@@ -101,7 +105,7 @@ export default function TaskActions({
         },
       ]
     );
-  };
+  }, [task.name, onDelete]);
 
   return (
     <View style={styles.container}>
@@ -158,7 +162,11 @@ export default function TaskActions({
       </TouchableOpacity>
     </View>
   );
-}
+});
+
+TaskActions.displayName = 'TaskActions';
+
+export default TaskActions;
 
 const styles = StyleSheet.create({
   container: {

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -35,7 +35,7 @@ interface TimeGridProps {
   onDeleteTask?: (taskId: number) => void;
 }
 
-export default function TimeGrid({ 
+const TimeGrid = React.memo<TimeGridProps>(({ 
   tasks = [], 
   onCellPress, 
   onCellLongPress,
@@ -49,7 +49,7 @@ export default function TimeGrid({
   onToggleComplete,
   onEditTask,
   onDeleteTask
-}: TimeGridProps) {
+}) => {
   const { generateTimeSlots, formatTimeSlot } = useTimeGrid();
   const { state } = useAppContext();
   const { isRTL } = useTranslation();
@@ -77,17 +77,17 @@ export default function TimeGrid({
   const cellWidth = Math.max(70, (availableWidth - (gridSpacing * 3)) / 4);
   const cellHeight = Math.max(70, cellWidth * 0.8);
   
-  const handleCellPress = async (hour: number) => {
+  const handleCellPress = useCallback(async (hour: number) => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onCellPress?.(hour);
-  };
+  }, [onCellPress]);
   
-  const handleCellLongPress = async (hour: number) => {
+  const handleCellLongPress = useCallback(async (hour: number) => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     onCellLongPress?.(hour);
-  };
+  }, [onCellLongPress]);
   
-  const renderCell = (timeSlot: typeof timeSlots[0], index: number) => {
+  const renderCell = useCallback((timeSlot: typeof timeSlots[0], index: number) => {
     const row = Math.floor(index / 4);
     const col = index % 4;
     
@@ -119,9 +119,9 @@ export default function TimeGrid({
         </Text>
       </TouchableOpacity>
     );
-  };
+  }, [cellWidth, cellHeight, gridSpacing, state.useArabicNumerals, state.language, handleCellPress, handleCellLongPress]);
   
-  const renderTaskBlock = (task: Task) => {
+  const renderTaskBlock = useCallback((task: Task) => {
     // Calculate task position
     const startRow = Math.floor(task.startSlot / 4);
     const startCol = task.startSlot % 4;
@@ -147,23 +147,28 @@ export default function TimeGrid({
         onDelete={() => onDeleteTask?.(task.id)}
       />
     );
-  };
+  }, [cellWidth, cellHeight, gridSpacing, selectedTaskId, onTaskPress, onTaskLongPress, onMoveLeft, onMoveRight, onIncreaseDuration, onDecreaseDuration, onToggleComplete, onEditTask, onDeleteTask]);
   
-  // Calculate total grid height
-  const gridHeight = 6 * (cellHeight + gridSpacing) - gridSpacing;
-  const gridWidth = 4 * (cellWidth + gridSpacing) - gridSpacing;
+  // Calculate total grid height - memoize expensive calculations
+  const gridDimensions = useMemo(() => ({
+    height: 6 * (cellHeight + gridSpacing) - gridSpacing,
+    width: 4 * (cellWidth + gridSpacing) - gridSpacing
+  }), [cellHeight, cellWidth, gridSpacing]);
   
   return (
     <ScrollView 
       style={styles.container}
       showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.scrollContent}
+      scrollEventThrottle={16}
+      removeClippedSubviews={true}
+      bounces={false}
     >
       <View style={[
         styles.grid,
         {
-          width: gridWidth,
-          height: gridHeight,
+          width: gridDimensions.width,
+          height: gridDimensions.height,
         }
       ]}>
         {/* Render empty grid cells */}
@@ -174,7 +179,11 @@ export default function TimeGrid({
       </View>
     </ScrollView>
   );
-}
+});
+
+TimeGrid.displayName = 'TimeGrid';
+
+export default TimeGrid;
 
 const styles = StyleSheet.create({
   container: {
