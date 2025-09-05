@@ -1,10 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  Alert, 
+  TouchableOpacity, 
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import { APP_NAME } from '../constants';
 import { useThemeValues } from '../context/ThemeContext';
 import { textStyles, createContainerStyle } from '../utils/styleUtils';
+import { 
+  getResponsiveSpacing,
+  RESPONSIVE_VALUES,
+  DEVICE_INFO,
+  getSafeAreaPadding
+} from '../utils/responsiveUtils';
 import Header from '../components/Header';
 import TimeGrid from '../components/TimeGrid';
 import AddTaskModal from '../components/AddTaskModal';
@@ -35,6 +51,8 @@ export default function HomeScreen() {
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [scrollViewHeight, setScrollViewHeight] = useState(0);
 
   // Initialize with sample tasks if none exist
   useEffect(() => {
@@ -72,6 +90,21 @@ export default function HomeScreen() {
       initializeData();
     }
   }, [tasks.length, addTask]);
+
+  // Keyboard handling
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   const handleCellPress = (hour: number) => {
     const availableSlots = getAvailableTimeSlots(1);
@@ -182,124 +215,157 @@ export default function HomeScreen() {
     Alert.alert('Calendar', 'Calendar functionality will be implemented soon');
   };
 
-  // Create dynamic styles using theme
+  // Create dynamic styles using theme and responsive utilities
   const styles = StyleSheet.create({
     container: {
       flex: 1,
     },
     content: {
-      paddingHorizontal: theme.spacing.md,
-      paddingTop: theme.spacing.sm,
+      paddingHorizontal: getResponsiveSpacing(theme.spacing.md),
+      paddingTop: getResponsiveSpacing(theme.spacing.sm),
+    },
+    scrollContainer: {
+      flex: 1,
     },
     subtitle: {
       ...textStyles.secondary,
       textAlign: 'center',
-      marginBottom: theme.spacing.md,
+      marginBottom: getResponsiveSpacing(theme.spacing.md),
+      fontSize: DEVICE_INFO.isTablet ? 16 : 14,
     },
     headerActions: {
       flexDirection: 'row',
       justifyContent: 'center',
       alignItems: 'center',
+      paddingBottom: getResponsiveSpacing(theme.spacing.sm),
     },
     addButton: {
       backgroundColor: theme.colors.primary,
-      paddingHorizontal: theme.spacing.lg,
-      paddingVertical: theme.spacing.sm,
+      paddingHorizontal: getResponsiveSpacing(theme.spacing.lg),
+      paddingVertical: getResponsiveSpacing(theme.spacing.sm),
       borderRadius: theme.layout.borderRadius.full,
-      marginRight: theme.spacing.sm,
+      marginRight: getResponsiveSpacing(theme.spacing.sm),
+      minHeight: RESPONSIVE_VALUES.buttonHeight,
       ...theme.layout.shadow.sm,
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     addButtonText: {
       ...textStyles.button,
-      fontSize: theme.typography.size.base,
+      fontSize: DEVICE_INFO.isTablet ? 16 : theme.typography.size.base,
     },
     undoButton: {
       backgroundColor: theme.colors.text.secondary,
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.sm,
+      paddingHorizontal: getResponsiveSpacing(theme.spacing.md),
+      paddingVertical: getResponsiveSpacing(theme.spacing.sm),
       borderRadius: theme.layout.borderRadius.full,
+      minHeight: RESPONSIVE_VALUES.buttonHeight,
       ...theme.layout.shadow.sm,
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     undoButtonText: {
       ...textStyles.button,
-      fontSize: theme.typography.size.sm,
+      fontSize: DEVICE_INFO.isTablet ? 14 : theme.typography.size.sm,
     },
   });
 
   return (
     <ActionSheetProvider>
-      <LinearGradient 
-        colors={theme.colors.background.gradient}
+      <KeyboardAvoidingView
         style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
-        <Header 
-          onSettingsPress={handleSettingsPress}
-          onCalendarPress={handleCalendarPress}
-        />
-        
-        <View style={styles.content}>
-          <Text style={styles.subtitle}>انقر على الخلايا الفارغة لإضافة المهام</Text>
+        <LinearGradient 
+          colors={theme.colors.background.gradient}
+          style={styles.container}
+        >
+          <Header 
+            onSettingsPress={handleSettingsPress}
+            onCalendarPress={handleCalendarPress}
+          />
           
-          <View style={styles.headerActions}>
-            <TouchableOpacity
-              style={styles.addButton}
-              onPress={() => setAddModalVisible(true)}
-            >
-              <Text style={styles.addButtonText}>+ إضافة مهمة</Text>
-            </TouchableOpacity>
-            
-            {canUndo && (
-              <TouchableOpacity
-                style={styles.undoButton}
-                onPress={handleUndoDelete}
-              >
-                <Text style={styles.undoButtonText}>↺ تراجع</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
+          <ScrollView
+            style={styles.scrollContainer}
+            contentContainerStyle={{ flexGrow: 1 }}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            scrollEventThrottle={16}
+            onLayout={(event) => {
+              const { height } = event.nativeEvent.layout;
+              setScrollViewHeight(height);
+            }}
+          >
+            <View style={styles.content}>
+              <Text style={styles.subtitle}>انقر على الخلايا الفارغة لإضافة المهام</Text>
+              
+              <View style={styles.headerActions}>
+                <TouchableOpacity
+                  style={styles.addButton}
+                  onPress={() => setAddModalVisible(true)}
+                  accessibilityLabel="Add new task"
+                  accessibilityHint="Opens modal to create a new task"
+                >
+                  <Text style={styles.addButtonText}>+ إضافة مهمة</Text>
+                </TouchableOpacity>
+                
+                {canUndo && (
+                  <TouchableOpacity
+                    style={styles.undoButton}
+                    onPress={handleUndoDelete}
+                    accessibilityLabel="Undo last deletion"
+                    accessibilityHint="Restores the last deleted task"
+                  >
+                    <Text style={styles.undoButtonText}>↺ تراجع</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            </View>
 
-        <TimeGrid 
-          tasks={tasks}
-          onCellPress={handleCellPress}
-          onCellLongPress={handleCellLongPress}
-          onTaskPress={handleTaskPress}
-          onTaskLongPress={handleTaskLongPress}
-          selectedTaskId={selectedTaskId}
-          onMoveLeft={handleMoveLeft}
-          onMoveRight={handleMoveRight}
-          onIncreaseDuration={handleIncreaseDuration}
-          onDecreaseDuration={handleDecreaseDuration}
-          onToggleComplete={handleToggleComplete}
-          onEditTask={handleEditTask}
-          onDeleteTask={handleDeleteTask}
-        />
+            <TimeGrid 
+              tasks={tasks}
+              onCellPress={handleCellPress}
+              onCellLongPress={handleCellLongPress}
+              onTaskPress={handleTaskPress}
+              onTaskLongPress={handleTaskLongPress}
+              selectedTaskId={selectedTaskId}
+              onMoveLeft={handleMoveLeft}
+              onMoveRight={handleMoveRight}
+              onIncreaseDuration={handleIncreaseDuration}
+              onDecreaseDuration={handleDecreaseDuration}
+              onToggleComplete={handleToggleComplete}
+              onEditTask={handleEditTask}
+              onDeleteTask={handleDeleteTask}
+            />
+          </ScrollView>
 
-        <AddTaskModal
-          visible={addModalVisible}
-          onClose={() => setAddModalVisible(false)}
-          onAddTask={addTask}
-          availableSlots={getAvailableTimeSlots(1)}
-        />
+          <AddTaskModal
+            visible={addModalVisible}
+            onClose={() => setAddModalVisible(false)}
+            onAddTask={addTask}
+            availableSlots={getAvailableTimeSlots(1)}
+          />
 
-        <EditTaskModal
-          visible={editModalVisible}
-          task={editingTask}
-          onClose={() => {
-            setEditModalVisible(false);
-            setEditingTask(null);
-          }}
-          onUpdateTask={updateTask}
-          availableSlots={getAvailableTimeSlots(1, editingTask?.id)}
-        />
+          <EditTaskModal
+            visible={editModalVisible}
+            task={editingTask}
+            onClose={() => {
+              setEditModalVisible(false);
+              setEditingTask(null);
+            }}
+            onUpdateTask={updateTask}
+            availableSlots={getAvailableTimeSlots(1, editingTask?.id)}
+          />
 
-        <VoiceRecordingInterface
-          onRecordingComplete={(uri) => {
-            console.log('Recording completed with URI:', uri);
-            // TODO: In the future, this could process the audio to extract task information
-          }}
-        />
-      </LinearGradient>
+          <VoiceRecordingInterface
+            onRecordingComplete={(uri) => {
+              console.log('Recording completed with URI:', uri);
+              // TODO: In the future, this could process the audio to extract task information
+            }}
+          />
+        </LinearGradient>
+      </KeyboardAvoidingView>
     </ActionSheetProvider>
   );
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, I18nManager } from 'react-native';
+import { StyleSheet, SafeAreaView, I18nManager, StatusBar, Platform } from 'react-native';
 import { AppProvider } from './src/context/AppContext';
 import { ThemeProvider } from './src/context/ThemeContext';
 import HomeScreen from './src/screens/HomeScreen';
@@ -13,9 +13,14 @@ export default function App() {
   return (
     <ThemeProvider>
       <AppProvider>
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
+          <StatusBar
+            barStyle={Platform.OS === 'ios' ? 'dark-content' : 'light-content'}
+            backgroundColor="transparent"
+            translucent={Platform.OS === 'android'}
+          />
           <HomeScreen />
-        </View>
+        </SafeAreaView>
       </AppProvider>
     </ThemeProvider>
   );
