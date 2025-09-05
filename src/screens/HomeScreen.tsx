@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { 
   View, 
   Text, 
@@ -107,71 +107,71 @@ export default function HomeScreen() {
     };
   }, []);
 
-  const handleCellPress = (hour: number) => {
+  const handleCellPress = useCallback((hour: number) => {
     const availableSlots = getAvailableTimeSlots(1);
     if (availableSlots.includes(hour)) {
       setAddModalVisible(true);
     } else {
       Alert.alert('Time Slot Occupied', `${hour}:00 is already occupied by a task`);
     }
-  };
+  }, [getAvailableTimeSlots]);
 
-  const handleCellLongPress = (hour: number) => {
+  const handleCellLongPress = useCallback((hour: number) => {
     setAddModalVisible(true);
-  };
+  }, []);
 
-  const handleTaskPress = (task: Task) => {
-    setSelectedTaskId(selectedTaskId === task.id ? null : task.id);
-  };
+  const handleTaskPress = useCallback((task: Task) => {
+    setSelectedTaskId(prev => prev === task.id ? null : task.id);
+  }, []);
 
-  const handleTaskLongPress = (task: Task) => {
+  const handleTaskLongPress = useCallback((task: Task) => {
     setEditingTask(task);
     setEditModalVisible(true);
-  };
+  }, []);
 
-  // Task action handlers
-  const handleMoveLeft = async (taskId: number) => {
+  // Task action handlers - optimized with useCallback
+  const handleMoveLeft = useCallback(async (taskId: number) => {
     const result = await moveTaskLeft(taskId);
     if (!result.success && result.error) {
       Alert.alert('Cannot Move', result.error);
     }
-  };
+  }, [moveTaskLeft]);
 
-  const handleMoveRight = async (taskId: number) => {
+  const handleMoveRight = useCallback(async (taskId: number) => {
     const result = await moveTaskRight(taskId);
     if (!result.success && result.error) {
       Alert.alert('Cannot Move', result.error);
     }
-  };
+  }, [moveTaskRight]);
 
-  const handleIncreaseDuration = async (taskId: number) => {
+  const handleIncreaseDuration = useCallback(async (taskId: number) => {
     const result = await increaseDuration(taskId);
     if (!result.success && result.error) {
       Alert.alert('Cannot Increase Duration', result.error);
     }
-  };
+  }, [increaseDuration]);
 
-  const handleDecreaseDuration = async (taskId: number) => {
+  const handleDecreaseDuration = useCallback(async (taskId: number) => {
     const result = await decreaseDuration(taskId);
     if (!result.success && result.error) {
       Alert.alert('Cannot Decrease Duration', result.error);
     }
-  };
+  }, [decreaseDuration]);
 
-  const handleToggleComplete = async (taskId: number) => {
+  const handleToggleComplete = useCallback(async (taskId: number) => {
     const result = await toggleCompletion(taskId);
     if (!result.success && result.error) {
       Alert.alert('Error', result.error);
     }
-  };
+  }, [toggleCompletion]);
 
-  const handleEditTask = (task: Task) => {
+  const handleEditTask = useCallback((task: Task) => {
     setEditingTask(task);
     setEditModalVisible(true);
     setSelectedTaskId(null);
-  };
+  }, []);
 
-  const handleDeleteTask = async (taskId: number) => {
+  const handleDeleteTask = useCallback(async (taskId: number) => {
     const result = await deleteTask(taskId);
     if (result.success) {
       setSelectedTaskId(null);
@@ -197,27 +197,27 @@ export default function HomeScreen() {
     } else if (result.error) {
       Alert.alert('Error', result.error);
     }
-  };
+  }, [deleteTask, undoDelete]);
 
-  const handleUndoDelete = async () => {
+  const handleUndoDelete = useCallback(async () => {
     const result = await undoDelete();
     if (result.success) {
       Alert.alert('Restored', `"${result.task?.name}" has been restored`);
     } else if (result.error) {
       Alert.alert('Cannot Undo', result.error);
     }
-  };
+  }, [undoDelete]);
 
-  const handleSettingsPress = () => {
+  const handleSettingsPress = useCallback(() => {
     Alert.alert('Settings', 'Settings functionality will be implemented soon');
-  };
+  }, []);
 
-  const handleCalendarPress = () => {
+  const handleCalendarPress = useCallback(() => {
     Alert.alert('Calendar', 'Calendar functionality will be implemented soon');
-  };
+  }, []);
 
-  // Create dynamic styles using theme and responsive utilities
-  const styles = StyleSheet.create({
+  // Memoize dynamic styles using theme and responsive utilities
+  const styles = useMemo(() => StyleSheet.create({
     container: {
       flex: 1,
     },
@@ -269,7 +269,7 @@ export default function HomeScreen() {
       ...textStyles.button,
       fontSize: DEVICE_INFO.isTablet ? 14 : theme.typography.size.sm,
     },
-  });
+  }), [theme]);
 
   return (
     <ActionSheetProvider>

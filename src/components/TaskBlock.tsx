@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -33,7 +33,7 @@ interface TaskBlockProps {
   onDelete?: () => void;
 }
 
-export default function TaskBlock({
+const TaskBlock = React.memo<TaskBlockProps>(({
   task,
   cellWidth,
   cellHeight,
@@ -50,7 +50,7 @@ export default function TaskBlock({
   onToggleComplete,
   onEdit,
   onDelete,
-}: TaskBlockProps) {
+}) => {
   const { state } = useAppContext();
   const { isRTL } = useTranslation();
   const scaleAnim = useRef(new Animated.Value(0)).current;
@@ -71,16 +71,22 @@ export default function TaskBlock({
     ]).start();
   }, [scaleAnim, opacityAnim]);
 
-  // Calculate task block dimensions and position
-  const taskWidth = task.duration * cellWidth + (task.duration - 1) * gridSpacing;
-  const taskHeight = cellHeight;
+  // Memoize expensive calculations
+  const taskDimensions = useMemo(() => ({
+    width: task.duration * cellWidth + (task.duration - 1) * gridSpacing,
+    height: cellHeight,
+  }), [task.duration, cellWidth, cellHeight, gridSpacing]);
 
-  // Handle RTL layout
-  const isRTL = I18nManager.isRTL;
-  const adjustedStartCol = isRTL ? 3 - startCol - (task.duration - 1) : startCol;
-  
-  const taskLeft = adjustedStartCol * (cellWidth + gridSpacing);
-  const taskTop = startRow * (cellHeight + gridSpacing);
+  // Handle RTL layout - memoized
+  const taskPosition = useMemo(() => {
+    const isRTLLayout = I18nManager.isRTL;
+    const adjustedStartCol = isRTLLayout ? 3 - startCol - (task.duration - 1) : startCol;
+    
+    return {
+      left: adjustedStartCol * (cellWidth + gridSpacing),
+      top: startRow * (cellHeight + gridSpacing),
+    };
+  }, [startRow, startCol, task.duration, cellWidth, cellHeight, gridSpacing]);
   
   // Determine border radius for start and end cells
   const borderRadius = {
@@ -105,18 +111,20 @@ export default function TaskBlock({
   const taskOpacity = task.completed ? 0.6 : 1.0;
   const textColor = task.completed ? COLORS.text : '#FFFFFF';
 
-  // Format task time display
-  const startTime = `${task.startSlot.toString().padStart(2, '0')}:00`;
-  const endTime = `${(task.startSlot + task.duration).toString().padStart(2, '0')}:00`;
-  const timeDisplay = `${startTime}-${endTime}`;
+  // Memoize time display calculation
+  const timeDisplay = useMemo(() => {
+    const startTime = `${task.startSlot.toString().padStart(2, '0')}:00`;
+    const endTime = `${(task.startSlot + task.duration).toString().padStart(2, '0')}:00`;
+    return `${startTime}-${endTime}`;
+  }, [task.startSlot, task.duration]);
 
-  const handlePress = () => {
+  const handlePress = useCallback(() => {
     onTaskPress?.(task);
-  };
+  }, [onTaskPress, task]);
 
-  const handleLongPress = () => {
+  const handleLongPress = useCallback(() => {
     onTaskLongPress?.(task);
-  };
+  }, [onTaskLongPress, task]);
 
   return (
     <TouchableOpacity
@@ -126,10 +134,10 @@ export default function TaskBlock({
       style={[
         styles.taskBlockContainer,
         {
-          width: taskWidth,
-          height: taskHeight,
-          left: taskLeft,
-          top: taskTop,
+          width: taskDimensions.width,
+          height: taskDimensions.height,
+          left: taskPosition.left,
+          top: taskPosition.top,
         },
       ]}
     >
@@ -183,7 +191,11 @@ export default function TaskBlock({
       </Animated.View>
     </TouchableOpacity>
   );
-}
+});
+
+TaskBlock.displayName = 'TaskBlock';
+
+export default TaskBlock;
 
 const styles = StyleSheet.create({
   taskBlockContainer: {
