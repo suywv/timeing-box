@@ -26,6 +26,7 @@ import TimeGrid from '../components/TimeGrid';
 import AddTaskModal from '../components/AddTaskModal';
 import EditTaskModal from '../components/EditTaskModal';
 import VoiceRecordingInterface from '../components/VoiceRecordingInterface';
+import LanguageToggle from '../components/LanguageToggle';
 import { Task } from '../types';
 import { useTaskManager } from '../hooks/useTaskManager';
 
@@ -285,6 +286,9 @@ export default function HomeScreen() {
             onSettingsPress={handleSettingsPress}
             onCalendarPress={handleCalendarPress}
           />
+          
+          {/* Language Toggle for testing */}
+          <LanguageToggle />
           
           <ScrollView
             style={styles.scrollContainer}
