@@ -11,7 +11,8 @@ import {
   Animated,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { COLORS, LAYOUT } from '../constants';
+import { useThemeValues } from '../context/ThemeContext';
+import { textStyles } from '../utils/styleUtils';
 import { Task } from '../types';
 
 interface AddTaskModalProps {
@@ -22,11 +23,6 @@ interface AddTaskModalProps {
   suggestedSlot?: number;
 }
 
-const TASK_COLORS = [
-  '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57', 
-  '#FF9FF3', '#54A0FF', '#5F27CD', '#00D2D3', '#FF9F43',
-];
-
 export default function AddTaskModal({
   visible,
   onClose,
@@ -34,21 +30,192 @@ export default function AddTaskModal({
   availableSlots,
   suggestedSlot,
 }: AddTaskModalProps) {
+  const theme = useThemeValues();
   const [name, setName] = useState('');
   const [startSlot, setStartSlot] = useState(suggestedSlot || 9);
   const [duration, setDuration] = useState(1);
-  const [color, setColor] = useState(TASK_COLORS[0]);
+  const [color, setColor] = useState(theme.taskColors[0]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const slideAnim = new Animated.Value(0);
+
+  // Create dynamic styles using theme
+  const styles = StyleSheet.create({
+    overlay: {
+      flex: 1,
+      backgroundColor: theme.colors.surface.overlay,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingHorizontal: theme.spacing.md,
+    },
+    modal: {
+      backgroundColor: theme.colors.surface.primary,
+      borderRadius: theme.layout.borderRadius.lg,
+      padding: theme.spacing.lg,
+      width: '100%',
+      maxHeight: '80%',
+      ...theme.layout.shadow.lg,
+    },
+    title: {
+      ...textStyles.title,
+      fontSize: 24,
+      marginBottom: theme.spacing.md,
+      textAlign: 'center',
+    },
+    field: {
+      marginBottom: theme.spacing.md,
+    },
+    label: {
+      ...textStyles.subtitle,
+      marginBottom: theme.spacing.sm,
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: theme.colors.border.light,
+      borderRadius: theme.layout.borderRadius.base,
+      padding: theme.spacing.md,
+      fontSize: 16,
+      color: theme.colors.text.primary,
+    },
+    inputError: {
+      borderColor: theme.colors.error,
+    },
+    errorText: {
+      color: theme.colors.error,
+      fontSize: 12,
+      marginTop: 4,
+    },
+    timeSlots: {
+      maxHeight: 50,
+    },
+    timeSlot: {
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      marginRight: 8,
+      backgroundColor: theme.colors.background.primary,
+      borderRadius: theme.layout.borderRadius.base,
+      borderWidth: 1,
+      borderColor: theme.colors.border.light,
+    },
+    selectedTimeSlot: {
+      backgroundColor: theme.colors.primary,
+      borderColor: theme.colors.primary,
+    },
+    unavailableSlot: {
+      backgroundColor: theme.colors.text.disabled + '20',
+      borderColor: theme.colors.border.medium,
+    },
+    timeSlotText: {
+      ...textStyles.body,
+    },
+    selectedTimeSlotText: {
+      color: theme.colors.text.inverse,
+      fontWeight: '600',
+    },
+    unavailableSlotText: {
+      color: theme.colors.text.disabled,
+    },
+    durationControls: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    durationButton: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: theme.colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    durationButtonText: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: theme.colors.text.inverse,
+    },
+    durationText: {
+      ...textStyles.subtitle,
+      marginHorizontal: theme.spacing['2xl'],
+    },
+    disabledButton: {
+      backgroundColor: theme.colors.text.disabled,
+    },
+    disabledButtonText: {
+      color: theme.colors.text.disabled,
+    },
+    colorPalette: {
+      maxHeight: 60,
+    },
+    colorOption: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      marginRight: 12,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 2,
+      borderColor: 'transparent',
+    },
+    selectedColor: {
+      borderColor: theme.colors.text.primary,
+    },
+    selectedColorIcon: {
+      color: theme.colors.text.inverse,
+      fontSize: 16,
+      fontWeight: 'bold',
+    },
+    preview: {
+      backgroundColor: theme.colors.background.primary,
+      padding: theme.spacing.md,
+      borderRadius: theme.layout.borderRadius.base,
+      marginBottom: theme.spacing.md,
+    },
+    previewLabel: {
+      ...textStyles.secondary,
+      fontWeight: '600',
+      marginBottom: 4,
+    },
+    previewText: {
+      ...textStyles.body,
+      fontSize: 16,
+    },
+    actions: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: theme.spacing.md,
+    },
+    cancelButton: {
+      flex: 1,
+      paddingVertical: theme.spacing.md,
+      marginRight: theme.spacing.sm,
+      backgroundColor: theme.colors.background.primary,
+      borderRadius: theme.layout.borderRadius.base,
+      alignItems: 'center',
+    },
+    cancelButtonText: {
+      ...textStyles.button,
+      color: theme.colors.text.secondary,
+    },
+    addButton: {
+      flex: 1,
+      paddingVertical: theme.spacing.md,
+      marginLeft: theme.spacing.sm,
+      backgroundColor: theme.colors.primary,
+      borderRadius: theme.layout.borderRadius.base,
+      alignItems: 'center',
+    },
+    addButtonText: {
+      ...textStyles.button,
+    },
+  });
 
   useEffect(() => {
     if (visible) {
       setName('');
       setStartSlot(suggestedSlot || 9);
       setDuration(1);
-      setColor(TASK_COLORS[0]);
+      setColor(theme.taskColors[0]);
       setErrors({});
       
       Animated.spring(slideAnim, {
@@ -249,7 +416,7 @@ export default function AddTaskModal({
             <View style={styles.field}>
               <Text style={styles.label}>Color</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.colorPalette}>
-                {TASK_COLORS.map((taskColor, index) => (
+                {theme.taskColors.map((taskColor, index) => (
                   <TouchableOpacity
                     key={index}
                     style={[
@@ -304,188 +471,3 @@ export default function AddTaskModal({
   );
 }
 
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: LAYOUT.padding,
-  },
-  modal: {
-    backgroundColor: COLORS.surface,
-    borderRadius: LAYOUT.borderRadius * 2,
-    padding: LAYOUT.padding * 1.5,
-    width: '100%',
-    maxHeight: '80%',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 10,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 10,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: COLORS.text,
-    marginBottom: LAYOUT.padding,
-    textAlign: 'center',
-  },
-  field: {
-    marginBottom: LAYOUT.padding,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.text,
-    marginBottom: LAYOUT.margin,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#E5E5EA',
-    borderRadius: LAYOUT.borderRadius,
-    padding: LAYOUT.padding,
-    fontSize: 16,
-    color: COLORS.text,
-  },
-  inputError: {
-    borderColor: '#FF3B30',
-  },
-  errorText: {
-    color: '#FF3B30',
-    fontSize: 12,
-    marginTop: 4,
-  },
-  timeSlots: {
-    maxHeight: 50,
-  },
-  timeSlot: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginRight: 8,
-    backgroundColor: COLORS.background,
-    borderRadius: LAYOUT.borderRadius,
-    borderWidth: 1,
-    borderColor: '#E5E5EA',
-  },
-  selectedTimeSlot: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
-  },
-  unavailableSlot: {
-    backgroundColor: '#F5F5F5',
-    borderColor: '#D1D1D6',
-  },
-  timeSlotText: {
-    fontSize: 14,
-    color: COLORS.text,
-  },
-  selectedTimeSlotText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-  },
-  unavailableSlotText: {
-    color: '#8E8E93',
-  },
-  durationControls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  durationButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: COLORS.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  durationButtonText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  durationText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.text,
-    marginHorizontal: LAYOUT.padding * 2,
-  },
-  disabledButton: {
-    backgroundColor: '#D1D1D6',
-  },
-  disabledButtonText: {
-    color: '#8E8E93',
-  },
-  colorPalette: {
-    maxHeight: 60,
-  },
-  colorOption: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  selectedColor: {
-    borderColor: COLORS.text,
-  },
-  selectedColorIcon: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  preview: {
-    backgroundColor: COLORS.background,
-    padding: LAYOUT.padding,
-    borderRadius: LAYOUT.borderRadius,
-    marginBottom: LAYOUT.padding,
-  },
-  previewLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.textSecondary,
-    marginBottom: 4,
-  },
-  previewText: {
-    fontSize: 16,
-    color: COLORS.text,
-  },
-  actions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: LAYOUT.padding,
-  },
-  cancelButton: {
-    flex: 1,
-    paddingVertical: LAYOUT.padding,
-    marginRight: LAYOUT.margin,
-    backgroundColor: COLORS.background,
-    borderRadius: LAYOUT.borderRadius,
-    alignItems: 'center',
-  },
-  cancelButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.textSecondary,
-  },
-  addButton: {
-    flex: 1,
-    paddingVertical: LAYOUT.padding,
-    marginLeft: LAYOUT.margin,
-    backgroundColor: COLORS.primary,
-    borderRadius: LAYOUT.borderRadius,
-    alignItems: 'center',
-  },
-  addButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-});

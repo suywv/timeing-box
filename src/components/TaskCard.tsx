@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   I18nManager,
 } from 'react-native';
-import { COLORS, LAYOUT } from '../constants';
+import { useThemeValues } from '../context/ThemeContext';
+import { textStyles } from '../utils/styleUtils';
 import { Task } from '../types';
 import TaskActions from './TaskActions';
 
@@ -38,6 +39,7 @@ export default function TaskCard({
   onEdit,
   onDelete,
 }: TaskCardProps) {
+  const theme = useThemeValues();
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
 
@@ -58,7 +60,94 @@ export default function TaskCard({
   }, [scaleAnim, opacityAnim]);
 
   const taskOpacity = task.completed ? 0.7 : 1.0;
-  const textColor = task.completed ? COLORS.textSecondary : COLORS.text;
+  const textColor = task.completed ? theme.colors.text.secondary : theme.colors.text.primary;
+
+  // Create dynamic styles using theme
+  const styles = StyleSheet.create({
+    container: {
+      marginVertical: theme.spacing.xs,
+      marginHorizontal: theme.spacing.sm,
+    },
+    card: {
+      backgroundColor: theme.colors.surface.primary,
+      borderRadius: theme.layout.borderRadius.base,
+      borderLeftWidth: 4,
+      ...theme.layout.shadow.base,
+      overflow: 'hidden',
+    },
+    cardContent: {
+      padding: theme.spacing.md,
+    },
+    cardHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: theme.spacing.sm,
+    },
+    titleContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1,
+    },
+    colorIndicator: {
+      width: 12,
+      height: 12,
+      borderRadius: 6,
+      marginRight: theme.spacing.xs,
+      marginLeft: I18nManager.isRTL ? theme.spacing.xs : 0,
+    },
+    taskName: {
+      ...textStyles.subtitle,
+      fontSize: 16,
+      flex: 1,
+      textAlign: I18nManager.isRTL ? 'right' : 'left',
+    },
+    statusContainer: {
+      marginLeft: theme.spacing.sm,
+      marginRight: I18nManager.isRTL ? theme.spacing.sm : 0,
+    },
+    statusBadge: {
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: theme.spacing.xs,
+      borderRadius: theme.layout.borderRadius.md,
+      minWidth: 80,
+      alignItems: 'center',
+    },
+    completedBadge: {
+      backgroundColor: theme.colors.success + '20',
+    },
+    pendingBadge: {
+      backgroundColor: theme.colors.warning + '20',
+    },
+    statusText: {
+      ...textStyles.caption,
+      fontWeight: '500',
+      color: theme.colors.text.tertiary,
+    },
+    taskDetails: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: theme.spacing.sm,
+    },
+    timeText: {
+      ...textStyles.body,
+      fontWeight: '500',
+      flex: 1,
+      textAlign: I18nManager.isRTL ? 'right' : 'left',
+    },
+    durationText: {
+      ...textStyles.body,
+      fontWeight: '500',
+      textAlign: I18nManager.isRTL ? 'left' : 'right',
+    },
+    actionsContainer: {
+      marginTop: theme.spacing.sm,
+      borderTopWidth: 1,
+      borderTopColor: theme.colors.border.light,
+      paddingTop: theme.spacing.sm,
+    },
+  });
   
   const startTime = `${task.startSlot.toString().padStart(2, '0')}:00`;
   const endTime = `${(task.startSlot + task.duration).toString().padStart(2, '0')}:00`;
@@ -143,95 +232,3 @@ export default function TaskCard({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    marginVertical: LAYOUT.margin / 2,
-    marginHorizontal: LAYOUT.margin,
-  },
-  card: {
-    backgroundColor: COLORS.surface,
-    borderRadius: LAYOUT.borderRadius,
-    borderLeftWidth: 4,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 3,
-    overflow: 'hidden',
-  },
-  cardContent: {
-    padding: LAYOUT.padding,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: LAYOUT.margin,
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  colorIndicator: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginRight: LAYOUT.margin / 2,
-    marginLeft: I18nManager.isRTL ? LAYOUT.margin / 2 : 0,
-  },
-  taskName: {
-    fontSize: 16,
-    fontWeight: '600',
-    flex: 1,
-    textAlign: I18nManager.isRTL ? 'right' : 'left',
-  },
-  statusContainer: {
-    marginLeft: LAYOUT.margin,
-    marginRight: I18nManager.isRTL ? LAYOUT.margin : 0,
-  },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    minWidth: 80,
-    alignItems: 'center',
-  },
-  completedBadge: {
-    backgroundColor: '#E8F5E8',
-  },
-  pendingBadge: {
-    backgroundColor: '#FFF3E0',
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#666',
-  },
-  taskDetails: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: LAYOUT.margin,
-  },
-  timeText: {
-    fontSize: 14,
-    fontWeight: '500',
-    flex: 1,
-    textAlign: I18nManager.isRTL ? 'right' : 'left',
-  },
-  durationText: {
-    fontSize: 14,
-    fontWeight: '500',
-    textAlign: I18nManager.isRTL ? 'left' : 'right',
-  },
-  actionsContainer: {
-    marginTop: LAYOUT.margin,
-    borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
-    paddingTop: LAYOUT.margin,
-  },
-});
