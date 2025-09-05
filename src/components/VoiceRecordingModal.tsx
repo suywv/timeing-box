@@ -12,7 +12,8 @@ import {
 } from 'react-native';
 import { Audio } from 'expo-av';
 import * as Haptics from 'expo-haptics';
-import { COLORS, LAYOUT } from '../constants';
+import { useThemeValues } from '../context/ThemeContext';
+import { textStyles } from '../utils/styleUtils';
 
 interface VoiceRecordingModalProps {
   visible: boolean;
@@ -33,6 +34,7 @@ export default function VoiceRecordingModal({
   onStopRecording,
   autoCloseDelay = 3000, // 3 seconds for testing
 }: VoiceRecordingModalProps) {
+  const theme = useThemeValues();
   const slideAnim = useRef(new Animated.Value(screenHeight)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
   const microphoneScaleAnim = useRef(new Animated.Value(1)).current;
@@ -42,6 +44,108 @@ export default function VoiceRecordingModal({
   
   const [recordingTime, setRecordingTime] = useState(0);
   const [permissionStatus, setPermissionStatus] = useState<string>('undetermined');
+
+  // Create dynamic styles using theme
+  const styles = StyleSheet.create({
+    overlay: {
+      flex: 1,
+      backgroundColor: theme.colors.surface.overlay,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    backgroundTouchable: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+    },
+    modalContainer: {
+      backgroundColor: theme.colors.surface.primary,
+      borderRadius: theme.layout.borderRadius.lg,
+      width: screenWidth * 0.9,
+      maxWidth: 400,
+      ...theme.layout.shadow.lg,
+    },
+    modalContent: {
+      padding: theme.spacing['2xl'],
+      alignItems: 'center',
+    },
+    title: {
+      ...textStyles.title,
+      fontSize: 24,
+      marginBottom: theme.spacing.lg,
+      textAlign: 'center',
+    },
+    microphoneContainer: {
+      position: 'relative',
+      width: 120,
+      height: 120,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginVertical: theme.spacing['2xl'],
+    },
+    audioWave: {
+      position: 'absolute',
+      borderRadius: 60,
+      borderWidth: 2,
+    },
+    wave1: {
+      width: 140,
+      height: 140,
+      borderColor: theme.colors.primary,
+    },
+    wave2: {
+      width: 160,
+      height: 160,
+      borderColor: theme.colors.secondary,
+    },
+    wave3: {
+      width: 180,
+      height: 180,
+      borderColor: theme.colors.primary,
+    },
+    microphoneButton: {
+      zIndex: 10,
+    },
+    microphoneIconContainer: {
+      width: 80,
+      height: 80,
+      borderRadius: 40,
+      justifyContent: 'center',
+      alignItems: 'center',
+      ...theme.layout.shadow.base,
+    },
+    microphoneIcon: {
+      fontSize: 32,
+      color: theme.colors.text.inverse,
+    },
+    instruction: {
+      ...textStyles.subtitle,
+      fontSize: 18,
+      textAlign: 'center',
+      marginBottom: theme.spacing.sm,
+      paddingHorizontal: theme.spacing.md,
+    },
+    status: {
+      ...textStyles.secondary,
+      textAlign: 'center',
+      marginBottom: theme.spacing['2xl'],
+      paddingHorizontal: theme.spacing.md,
+    },
+    closeButton: {
+      backgroundColor: theme.colors.text.secondary,
+      paddingHorizontal: theme.spacing['2xl'],
+      paddingVertical: theme.spacing.md,
+      borderRadius: theme.layout.borderRadius.base,
+      minWidth: 100,
+      alignItems: 'center',
+    },
+    closeButtonText: {
+      ...textStyles.button,
+      fontSize: 16,
+    },
+  });
 
   // Auto-close timer for testing
   useEffect(() => {
@@ -335,7 +439,7 @@ export default function VoiceRecordingModal({
                     styles.microphoneIconContainer,
                     {
                       transform: [{ scale: microphoneScaleAnim }],
-                      backgroundColor: isRecording ? '#FF3B30' : COLORS.primary,
+                      backgroundColor: isRecording ? theme.colors.error : theme.colors.primary,
                     },
                   ]}
                 >
@@ -378,121 +482,3 @@ export default function VoiceRecordingModal({
   );
 }
 
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  backgroundTouchable: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  modalContainer: {
-    backgroundColor: COLORS.surface,
-    borderRadius: LAYOUT.borderRadius * 2,
-    width: screenWidth * 0.9,
-    maxWidth: 400,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 10,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 20,
-  },
-  modalContent: {
-    padding: LAYOUT.padding * 2,
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: COLORS.text,
-    marginBottom: LAYOUT.padding * 1.5,
-    textAlign: 'center',
-  },
-  microphoneContainer: {
-    position: 'relative',
-    width: 120,
-    height: 120,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginVertical: LAYOUT.padding * 2,
-  },
-  audioWave: {
-    position: 'absolute',
-    borderRadius: 60,
-    borderWidth: 2,
-  },
-  wave1: {
-    width: 140,
-    height: 140,
-    borderColor: COLORS.primary,
-  },
-  wave2: {
-    width: 160,
-    height: 160,
-    borderColor: COLORS.secondary,
-  },
-  wave3: {
-    width: 180,
-    height: 180,
-    borderColor: COLORS.primary,
-  },
-  microphoneButton: {
-    zIndex: 10,
-  },
-  microphoneIconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 8,
-  },
-  microphoneIcon: {
-    fontSize: 32,
-    color: '#FFFFFF',
-  },
-  instruction: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: COLORS.text,
-    textAlign: 'center',
-    marginBottom: LAYOUT.margin,
-    paddingHorizontal: LAYOUT.padding,
-  },
-  status: {
-    fontSize: 14,
-    color: COLORS.textSecondary,
-    textAlign: 'center',
-    marginBottom: LAYOUT.padding * 2,
-    paddingHorizontal: LAYOUT.padding,
-  },
-  closeButton: {
-    backgroundColor: COLORS.textSecondary,
-    paddingHorizontal: LAYOUT.padding * 2,
-    paddingVertical: LAYOUT.padding,
-    borderRadius: LAYOUT.borderRadius,
-    minWidth: 100,
-    alignItems: 'center',
-  },
-  closeButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});

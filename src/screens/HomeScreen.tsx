@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
-import { APP_NAME, COLORS, LAYOUT } from '../constants';
+import { APP_NAME } from '../constants';
+import { useThemeValues } from '../context/ThemeContext';
+import { textStyles, createContainerStyle } from '../utils/styleUtils';
 import Header from '../components/Header';
 import TimeGrid from '../components/TimeGrid';
 import AddTaskModal from '../components/AddTaskModal';
@@ -11,6 +14,7 @@ import { Task } from '../types';
 import { useTaskManager } from '../hooks/useTaskManager';
 
 export default function HomeScreen() {
+  const theme = useThemeValues();
   const {
     tasks,
     loading,
@@ -178,9 +182,56 @@ export default function HomeScreen() {
     Alert.alert('Calendar', 'Calendar functionality will be implemented soon');
   };
 
+  // Create dynamic styles using theme
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    content: {
+      paddingHorizontal: theme.spacing.md,
+      paddingTop: theme.spacing.sm,
+    },
+    subtitle: {
+      ...textStyles.secondary,
+      textAlign: 'center',
+      marginBottom: theme.spacing.md,
+    },
+    headerActions: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    addButton: {
+      backgroundColor: theme.colors.primary,
+      paddingHorizontal: theme.spacing.lg,
+      paddingVertical: theme.spacing.sm,
+      borderRadius: theme.layout.borderRadius.full,
+      marginRight: theme.spacing.sm,
+      ...theme.layout.shadow.sm,
+    },
+    addButtonText: {
+      ...textStyles.button,
+      fontSize: theme.typography.size.base,
+    },
+    undoButton: {
+      backgroundColor: theme.colors.text.secondary,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.sm,
+      borderRadius: theme.layout.borderRadius.full,
+      ...theme.layout.shadow.sm,
+    },
+    undoButtonText: {
+      ...textStyles.button,
+      fontSize: theme.typography.size.sm,
+    },
+  });
+
   return (
     <ActionSheetProvider>
-      <View style={styles.container}>
+      <LinearGradient 
+        colors={theme.colors.background.gradient}
+        style={styles.container}
+      >
         <Header 
           onSettingsPress={handleSettingsPress}
           onCalendarPress={handleCalendarPress}
@@ -248,53 +299,8 @@ export default function HomeScreen() {
             // TODO: In the future, this could process the audio to extract task information
           }}
         />
-      </View>
+      </LinearGradient>
     </ActionSheetProvider>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-  content: {
-    paddingHorizontal: LAYOUT.padding,
-    paddingTop: LAYOUT.padding / 2,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: COLORS.textSecondary,
-    textAlign: 'center',
-    marginBottom: LAYOUT.padding,
-    fontWeight: '500',
-  },
-  headerActions: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  addButton: {
-    backgroundColor: COLORS.primary,
-    paddingHorizontal: LAYOUT.padding * 1.5,
-    paddingVertical: LAYOUT.padding / 2,
-    borderRadius: LAYOUT.borderRadius,
-    marginRight: LAYOUT.margin,
-  },
-  addButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  undoButton: {
-    backgroundColor: COLORS.textSecondary,
-    paddingHorizontal: LAYOUT.padding,
-    paddingVertical: LAYOUT.padding / 2,
-    borderRadius: LAYOUT.borderRadius,
-  },
-  undoButtonText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-});

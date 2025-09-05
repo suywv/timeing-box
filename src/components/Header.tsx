@@ -11,7 +11,8 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { COLORS, LAYOUT } from '../constants';
+import { useThemeValues } from '../context/ThemeContext';
+import { textStyles } from '../utils/styleUtils';
 import { formatArabicDateShort } from '../utils';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -25,8 +26,82 @@ export default function Header({
   onSettingsPress,
   onCalendarPress,
 }: HeaderProps) {
+  const theme = useThemeValues();
   const currentDate = new Date();
   const isRTL = I18nManager.isRTL;
+
+  // Create dynamic styles using theme
+  const styles = StyleSheet.create({
+    container: {
+      backgroundColor: theme.colors.surface.primary,
+      paddingTop: Platform.OS === 'ios' ? 50 : 35,
+      paddingHorizontal: theme.spacing.md,
+      paddingBottom: theme.spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.border.light,
+      ...theme.layout.shadow.base,
+    },
+    headerContent: {
+      flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: theme.spacing.sm,
+    },
+    iconButton: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: theme.colors.background.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      ...theme.layout.shadow.sm,
+    },
+    centerContent: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginHorizontal: theme.spacing.md,
+    },
+    titleGradient: {
+      paddingHorizontal: theme.spacing.lg,
+      paddingVertical: theme.spacing.sm,
+      borderRadius: theme.layout.borderRadius.md,
+      marginBottom: 4,
+    },
+    appTitle: {
+      ...textStyles.title,
+      fontSize: Math.min(24, screenWidth * 0.06),
+      color: theme.colors.text.inverse,
+      textAlign: 'center',
+      includeFontPadding: false,
+      textAlignVertical: 'center',
+    },
+    dateText: {
+      ...textStyles.secondary,
+      fontSize: Math.min(14, screenWidth * 0.035),
+      textAlign: 'center',
+      fontWeight: '500',
+    },
+    gridIndicator: {
+      flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingTop: theme.spacing.xs,
+    },
+    gridDot: {
+      width: 4,
+      height: 4,
+      borderRadius: 2,
+      backgroundColor: theme.colors.primary,
+      marginHorizontal: theme.spacing.sm,
+    },
+    gridText: {
+      ...textStyles.caption,
+      fontSize: Math.min(12, screenWidth * 0.03),
+      fontWeight: '600',
+      textAlign: 'center',
+    },
+  });
 
   const handleSettingsPress = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -51,7 +126,7 @@ export default function Header({
           <Ionicons
             name={isRTL ? 'calendar' : 'settings'}
             size={24}
-            color={COLORS.text}
+            color={theme.colors.text.primary}
           />
         </TouchableOpacity>
 
@@ -59,7 +134,7 @@ export default function Header({
         <View style={styles.centerContent}>
           {/* App title with gradient */}
           <LinearGradient
-            colors={['#4ECDC4', '#45B7D1']} // Teal to Blue gradient
+            colors={[theme.colors.task.teal, theme.colors.task.blue]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.titleGradient}
@@ -82,7 +157,7 @@ export default function Header({
           <Ionicons
             name={isRTL ? 'settings' : 'calendar'}
             size={24}
-            color={COLORS.text}
+            color={theme.colors.text.primary}
           />
         </TouchableOpacity>
       </View>
@@ -97,88 +172,3 @@ export default function Header({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: COLORS.surface,
-    paddingTop: Platform.OS === 'ios' ? 50 : 35, // Safe area handling
-    paddingHorizontal: LAYOUT.padding,
-    paddingBottom: LAYOUT.padding,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  headerContent: {
-    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: LAYOUT.margin,
-  },
-  iconButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: COLORS.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  centerContent: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginHorizontal: LAYOUT.padding,
-  },
-  titleGradient: {
-    paddingHorizontal: LAYOUT.padding * 1.5,
-    paddingVertical: LAYOUT.padding / 2,
-    borderRadius: LAYOUT.borderRadius * 1.5,
-    marginBottom: 4,
-  },
-  appTitle: {
-    fontSize: Math.min(24, screenWidth * 0.06), // Responsive font size
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    includeFontPadding: false,
-    textAlignVertical: 'center',
-  },
-  dateText: {
-    fontSize: Math.min(14, screenWidth * 0.035), // Responsive font size
-    color: COLORS.textSecondary,
-    textAlign: 'center',
-    fontWeight: '500',
-  },
-  gridIndicator: {
-    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: LAYOUT.margin / 2,
-  },
-  gridDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: COLORS.primary,
-    marginHorizontal: LAYOUT.margin,
-  },
-  gridText: {
-    fontSize: Math.min(12, screenWidth * 0.03), // Responsive font size
-    color: COLORS.textSecondary,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-});
