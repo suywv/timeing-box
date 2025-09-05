@@ -160,6 +160,9 @@ const TimeGrid = React.memo<TimeGridProps>(({
       style={styles.container}
       showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.scrollContent}
+      scrollEventThrottle={16}
+      removeClippedSubviews={true}
+      bounces={false}
     >
       <View style={[
         styles.grid,
