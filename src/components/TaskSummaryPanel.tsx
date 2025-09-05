@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -29,7 +29,7 @@ interface TaskSummaryPanelProps {
   style?: any;
 }
 
-export default function TaskSummaryPanel({
+const TaskSummaryPanel = React.memo<TaskSummaryPanelProps>(({
   tasks,
   onTaskPress,
   onTaskLongPress,
@@ -43,7 +43,7 @@ export default function TaskSummaryPanel({
   onRefresh,
   selectedTaskId = null,
   style,
-}: TaskSummaryPanelProps) {
+}) => {
   const [refreshing, setRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -60,19 +60,19 @@ export default function TaskSummaryPanel({
     }
   }, [onRefresh]);
 
-  const handleTaskPress = (task: Task) => {
+  const handleTaskPress = useCallback((task: Task) => {
     onTaskPress?.(task);
-  };
+  }, [onTaskPress]);
 
-  const handleTaskLongPress = (task: Task) => {
+  const handleTaskLongPress = useCallback((task: Task) => {
     onTaskLongPress?.(task);
-  };
+  }, [onTaskLongPress]);
 
-  const createTaskActionHandler = (taskId: number, action: ((id: number) => void) | undefined) => {
+  const createTaskActionHandler = useCallback((taskId: number, action: ((id: number) => void) | undefined) => {
     return action ? () => action(taskId) : undefined;
-  };
+  }, []);
 
-  const renderTask: ListRenderItem<Task> = ({ item: task, index }) => {
+  const renderTask: ListRenderItem<Task> = useCallback(({ item: task, index }) => {
     const isSelected = selectedTaskId === task.id;
     const showActions = isSelected && !task.completed;
 
@@ -91,9 +91,9 @@ export default function TaskSummaryPanel({
         onDelete={createTaskActionHandler(task.id, onDeleteTask)}
       />
     );
-  };
+  }, [selectedTaskId, handleTaskPress, handleTaskLongPress, createTaskActionHandler, onMoveLeft, onMoveRight, onIncreaseDuration, onDecreaseDuration, onToggleComplete, onEditTask, onDeleteTask]);
 
-  const renderEmptyState = () => (
+  const renderEmptyState = useCallback(() => (
     <View style={styles.emptyContainer}>
       <Animated.View style={styles.emptyContent}>
         <Text style={styles.emptyIcon}>📅</Text>
@@ -106,9 +106,9 @@ export default function TaskSummaryPanel({
         </Text>
       </Animated.View>
     </View>
-  );
+  ), []);
 
-  const renderHeader = () => (
+  const renderHeader = useCallback(() => (
     <View style={styles.header}>
       <Text style={styles.headerTitle}>
         {I18nManager.isRTL ? 'ملخص المهام اليومية' : 'Daily Task Summary'}
@@ -122,15 +122,15 @@ export default function TaskSummaryPanel({
         }
       </Text>
     </View>
-  );
+  ), [tasks.length]);
 
-  const keyExtractor = (item: Task) => `task-${item.id}`;
+  const keyExtractor = useCallback((item: Task) => `task-${item.id}`, []);
 
-  const getItemLayout = (_: any, index: number) => ({
+  const getItemLayout = useCallback((_: any, index: number) => ({
     length: 120, // Estimated height of each TaskCard
     offset: 120 * index,
     index,
-  });
+  }), []);
 
   return (
     <View style={[styles.container, style]}>
@@ -164,7 +164,11 @@ export default function TaskSummaryPanel({
       />
     </View>
   );
-}
+});
+
+TaskSummaryPanel.displayName = 'TaskSummaryPanel';
+
+export default TaskSummaryPanel;
 
 const styles = StyleSheet.create({
   container: {
