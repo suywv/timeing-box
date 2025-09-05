@@ -5,31 +5,46 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
+    "icon": "./assets/icon.png",
     "splash": {
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#667eea"
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.timejewel.app",
+      "buildNumber": "1",
       "infoPlist": {
-        "CFBundleDevelopmentRegion": "ar"
+        "CFBundleDevelopmentRegion": "ar",
+        "NSMicrophoneUsageDescription": "This app uses the microphone for voice task input to help you quickly add tasks by speaking."
       }
     },
     "android": {
+      "package": "com.timejewel.app",
+      "versionCode": 1,
       "adaptiveIcon": {
-        "backgroundColor": "#ffffff"
-      }
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#667eea"
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
+      "favicon": "./assets/favicon.png"
     },
     "extra": {
       "supportsRTL": true
     },
     "localization": {
       "supportsRTL": true
+    },
+    "privacy": {
+      "microphonePermission": "This app uses the microphone for voice task input to help you quickly add tasks by speaking."
     }
   }
 }
