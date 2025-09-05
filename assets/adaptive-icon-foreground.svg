@@ -1,0 +1,41 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="jewelGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffd89b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#19547b;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Central jewel shape -->
+  <g transform="translate(512,512)">
+    <!-- Main diamond/jewel -->
+    <polygon points="0,-120 80,-60 80,60 0,120 -80,60 -80,-60" fill="url(#jewelGradient)" stroke="#ffffff" stroke-width="6"/>
+    
+    <!-- Inner facets -->
+    <polygon points="0,-90 60,-45 60,45 0,90 -60,45 -60,-45" fill="#ffffff" opacity="0.3"/>
+    <polygon points="0,-60 40,-30 40,30 0,60 -40,30 -40,-30" fill="#ffffff" opacity="0.5"/>
+    
+    <!-- Central highlight -->
+    <circle cx="0" cy="0" r="20" fill="#ffffff" opacity="0.8"/>
+    
+    <!-- Clock face elements -->
+    <g opacity="0.7">
+      <!-- 12 o'clock marker -->
+      <rect x="-2" y="-90" width="4" height="15" fill="#ffffff"/>
+      <!-- 3 o'clock marker -->
+      <rect x="75" y="-2" width="15" height="4" fill="#ffffff"/>
+      <!-- 6 o'clock marker -->
+      <rect x="-2" y="75" width="4" height="15" fill="#ffffff"/>
+      <!-- 9 o'clock marker -->
+      <rect x="-90" y="-2" width="15" height="4" fill="#ffffff"/>
+    </g>
+    
+    <!-- Clock hands -->
+    <g opacity="0.9">
+      <!-- Hour hand -->
+      <rect x="-3" y="-40" width="6" height="40" rx="3" fill="#ffffff"/>
+      <!-- Minute hand -->
+      <rect x="-1.5" y="-55" width="3" height="55" rx="1.5" fill="#ffffff"/>
+    </g>
+  </g>
+</svg>

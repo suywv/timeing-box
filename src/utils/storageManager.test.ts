@@ -2,15 +2,15 @@ import { StorageManager } from './storageManager';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Mock AsyncStorage
-const mockAsyncStorage = {
+jest.mock('@react-native-async-storage/async-storage', () => ({
   getItem: jest.fn(),
   setItem: jest.fn(),
   removeItem: jest.fn(),
   multiRemove: jest.fn(),
   getAllKeys: jest.fn(),
-};
+}));
 
-(AsyncStorage as any) = mockAsyncStorage;
+const mockAsyncStorage = require('@react-native-async-storage/async-storage');
 
 describe('StorageManager', () => {
   let storageManager: StorageManager<any>;

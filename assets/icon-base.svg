@@ -1,0 +1,52 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="jewelGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffd89b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#19547b;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1024" height="1024" rx="200" fill="url(#bgGradient)"/>
+  
+  <!-- Central jewel shape -->
+  <g transform="translate(512,512)">
+    <!-- Main diamond/jewel -->
+    <polygon points="0,-180 120,-90 120,90 0,180 -120,90 -120,-90" fill="url(#jewelGradient)" stroke="#ffffff" stroke-width="8"/>
+    
+    <!-- Inner facets -->
+    <polygon points="0,-140 80,-70 80,70 0,140 -80,70 -80,-70" fill="#ffffff" opacity="0.3"/>
+    <polygon points="0,-100 50,-50 50,50 0,100 -50,50 -50,-50" fill="#ffffff" opacity="0.5"/>
+    
+    <!-- Central highlight -->
+    <circle cx="0" cy="0" r="30" fill="#ffffff" opacity="0.8"/>
+    
+    <!-- Clock face elements -->
+    <g opacity="0.7">
+      <!-- 12 o'clock marker -->
+      <rect x="-3" y="-140" width="6" height="20" fill="#ffffff"/>
+      <!-- 3 o'clock marker -->
+      <rect x="120" y="-3" width="20" height="6" fill="#ffffff"/>
+      <!-- 6 o'clock marker -->
+      <rect x="-3" y="120" width="6" height="20" fill="#ffffff"/>
+      <!-- 9 o'clock marker -->
+      <rect x="-140" y="-3" width="20" height="6" fill="#ffffff"/>
+    </g>
+    
+    <!-- Clock hands -->
+    <g opacity="0.9">
+      <!-- Hour hand -->
+      <rect x="-4" y="-60" width="8" height="60" rx="4" fill="#ffffff"/>
+      <!-- Minute hand -->
+      <rect x="-2" y="-80" width="4" height="80" rx="2" fill="#ffffff"/>
+    </g>
+  </g>
+  
+  <!-- Arabic text "وقت" (Time) -->
+  <text x="512" y="800" font-family="Arial, sans-serif" font-size="120" font-weight="bold" text-anchor="middle" fill="#ffffff" opacity="0.9">وقت</text>
+</svg>
