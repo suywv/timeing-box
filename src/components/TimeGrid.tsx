@@ -13,6 +13,9 @@ import { COLORS, LAYOUT } from '../constants';
 import { useTimeGrid } from '../hooks/useTimeGrid';
 import { Task } from '../types';
 import TaskBlock from './TaskBlock';
+import { useTranslation } from '../hooks/useTranslation';
+import { useAppContext } from '../context/AppContext';
+import { convertToArabicNumerals } from '../utils';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -48,6 +51,8 @@ export default function TimeGrid({
   onDeleteTask
 }: TimeGridProps) {
   const { generateTimeSlots, formatTimeSlot } = useTimeGrid();
+  const { state } = useAppContext();
+  const { isRTL } = useTranslation();
   
   const timeSlots = useMemo(() => generateTimeSlots(tasks), [tasks, generateTimeSlots]);
   
@@ -107,7 +112,10 @@ export default function TimeGrid({
         activeOpacity={0.8}
       >
         <Text style={styles.hourText}>
-          {timeSlot.hour.toString().padStart(2, '0')}:00
+          {state.useArabicNumerals && state.language === 'ar' 
+            ? convertToArabicNumerals(`${timeSlot.hour.toString().padStart(2, '0')}:00`)
+            : `${timeSlot.hour.toString().padStart(2, '0')}:00`
+          }
         </Text>
       </TouchableOpacity>
     );

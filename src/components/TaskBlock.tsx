@@ -10,6 +10,9 @@ import {
 import { COLORS, LAYOUT } from '../constants';
 import { Task } from '../types';
 import TaskActions from './TaskActions';
+import { useTranslation } from '../hooks/useTranslation';
+import { useAppContext } from '../context/AppContext';
+import { convertToArabicNumerals } from '../utils';
 
 interface TaskBlockProps {
   task: Task;
@@ -48,6 +51,8 @@ export default function TaskBlock({
   onEdit,
   onDelete,
 }: TaskBlockProps) {
+  const { state } = useAppContext();
+  const { isRTL } = useTranslation();
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
 

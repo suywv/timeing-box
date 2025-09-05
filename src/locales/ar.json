@@ -1,0 +1,86 @@
+{
+  "app": {
+    "title": "جوهرة الوقت",
+    "gridIndicator": "شبكة 4×6 (24 ساعة)"
+  },
+  "common": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "add": "إضافة",
+    "close": "إغلاق",
+    "ok": "موافق",
+    "yes": "نعم",
+    "no": "لا",
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "success": "تم بنجاح"
+  },
+  "task": {
+    "title": "مهمة",
+    "newTask": "مهمة جديدة",
+    "editTask": "تعديل المهمة",
+    "deleteTask": "حذف المهمة",
+    "taskName": "اسم المهمة",
+    "startTime": "وقت البدء",
+    "duration": "المدة",
+    "completed": "مكتملة",
+    "pending": "قيد الانتظار",
+    "addTask": "إضافة مهمة",
+    "noTasks": "لا توجد مهام لليوم",
+    "hour": "ساعة",
+    "hours": "ساعات",
+    "minute": "دقيقة",
+    "minutes": "دقائق"
+  },
+  "voice": {
+    "recording": "جاري التسجيل...",
+    "startRecording": "بدء التسجيل",
+    "stopRecording": "إيقاف التسجيل",
+    "playback": "تشغيل التسجيل",
+    "deleteRecording": "حذف التسجيل"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "language": "اللغة",
+    "theme": "المظهر",
+    "notifications": "الإشعارات",
+    "backup": "النسخ الاحتياطي",
+    "restore": "الاستعادة",
+    "clearData": "مسح جميع البيانات",
+    "arabicNumerals": "استخدام الأرقام العربية",
+    "enableRTL": "تفعيل التخطيط من اليمين لليسار"
+  },
+  "time": {
+    "am": "ص",
+    "pm": "م",
+    "now": "الآن",
+    "today": "اليوم",
+    "tomorrow": "غداً",
+    "yesterday": "أمس"
+  },
+  "days": {
+    "monday": "الاثنين",
+    "tuesday": "الثلاثاء", 
+    "wednesday": "الأربعاء",
+    "thursday": "الخميس",
+    "friday": "الجمعة",
+    "saturday": "السبت",
+    "sunday": "الأحد"
+  },
+  "months": {
+    "january": "يناير",
+    "february": "فبراير",
+    "march": "مارس",
+    "april": "أبريل",
+    "may": "مايو",
+    "june": "يونيو",
+    "july": "يوليو",
+    "august": "أغسطس",
+    "september": "سبتمبر",
+    "october": "أكتوبر",
+    "november": "نوفمبر",
+    "december": "ديسمبر"
+  }
+}
