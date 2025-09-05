@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import { AppState, Task, User } from '../types';
-import { useLocalStorage } from '../hooks/useLocalStorage';
+import { AppState, Task, User, BackupMetadata } from '../types';
+import { useEnhancedStorage } from '../hooks/useEnhancedStorage';
 
 /**
  * Actions for the app state reducer
@@ -36,6 +36,21 @@ interface AppContextValue {
     setSelectedInterval: (interval: number) => void;
     setCurrentTime: (time: Date) => void;
     resetState: () => void;
+    
+    // Enhanced storage operations
+    createBackup: (description?: string) => Promise<string | null>;
+    restoreFromBackup: (backupKey: string) => Promise<boolean>;
+    getBackups: () => Promise<Array<{ key: string; metadata: BackupMetadata }>>;
+    deleteBackup: (backupKey: string) => Promise<boolean>;
+    clearAllData: () => Promise<boolean>;
+    getStorageInfo: () => Promise<{
+      hasData: boolean;
+      dataSize: number;
+      lastSaved?: string;
+      version: number;
+      backupCount: number;
+    }>;
+    flushStorage: () => Promise<void>;
   };
 }
 
@@ -136,12 +151,30 @@ interface AppProviderProps {
 export function AppProvider({ children }: AppProviderProps) {
   const [state, dispatch] = useReducer(appReducer, initialState);
   
-  // Persist state to local storage
+  // Enhanced storage configuration with migration support
+  const storageConfig = {
+    version: 1,
+    migrations: {
+      // Add future migration functions here
+      // 2: (oldData: any) => migrateToV2(oldData),
+    },
+    enableChecksums: true,
+    autoSaveInterval: 30000, // 30 seconds
+  };
+
+  // Enhanced persistent storage
   const { 
     value: persistedState, 
     setValue: saveState, 
-    loading: storageLoading 
-  } = useLocalStorage<Partial<AppState>>('appState', {}, validateAppState);
+    loading: storageLoading,
+    createBackup,
+    restoreFromBackup,
+    getBackups,
+    deleteBackup,
+    clearAllData,
+    getStorageInfo,
+    flush: flushStorage,
+  } = useEnhancedStorage<Partial<AppState>>('appState', {}, storageConfig);
 
   // Load persisted state on mount
   useEffect(() => {
@@ -162,7 +195,7 @@ export function AppProvider({ children }: AppProviderProps) {
     }
   }, [storageLoading, persistedState]);
 
-  // Persist state changes
+  // Auto-save state changes with debouncing
   useEffect(() => {
     if (!storageLoading) {
       const stateToSave: Partial<AppState> = {
@@ -171,6 +204,7 @@ export function AppProvider({ children }: AppProviderProps) {
         language: state.language,
         user: state.user,
       };
+      // Use queued auto-save for performance optimization
       saveState(stateToSave).catch(console.error);
     }
   }, [state.tasks, state.selectedInterval, state.language, state.user, storageLoading, saveState]);
@@ -188,6 +222,15 @@ export function AppProvider({ children }: AppProviderProps) {
     setSelectedInterval: (interval: number) => dispatch({ type: 'SET_SELECTED_INTERVAL', payload: interval }),
     setCurrentTime: (time: Date) => dispatch({ type: 'SET_CURRENT_TIME', payload: time }),
     resetState: () => dispatch({ type: 'RESET_STATE' }),
+    
+    // Enhanced storage operations
+    createBackup,
+    restoreFromBackup,
+    getBackups,
+    deleteBackup,
+    clearAllData,
+    getStorageInfo,
+    flushStorage,
   };
 
   const contextValue: AppContextValue = {
