@@ -1,0 +1,86 @@
+{
+  "app": {
+    "title": "Time Jewel",
+    "gridIndicator": "4×6 Grid (24 Hours)"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "close": "Close",
+    "ok": "OK",
+    "yes": "Yes",
+    "no": "No",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  },
+  "task": {
+    "title": "Task",
+    "newTask": "New Task",
+    "editTask": "Edit Task",
+    "deleteTask": "Delete Task",
+    "taskName": "Task Name",
+    "startTime": "Start Time",
+    "duration": "Duration",
+    "completed": "Completed",
+    "pending": "Pending",
+    "addTask": "Add Task",
+    "noTasks": "No tasks for today",
+    "hour": "hour",
+    "hours": "hours",
+    "minute": "minute",
+    "minutes": "minutes"
+  },
+  "voice": {
+    "recording": "Recording...",
+    "startRecording": "Start Recording",
+    "stopRecording": "Stop Recording",
+    "playback": "Play Recording",
+    "deleteRecording": "Delete Recording"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "notifications": "Notifications",
+    "backup": "Backup",
+    "restore": "Restore",
+    "clearData": "Clear All Data",
+    "arabicNumerals": "Use Arabic Numerals",
+    "enableRTL": "Enable RTL Layout"
+  },
+  "time": {
+    "am": "AM",
+    "pm": "PM",
+    "now": "Now",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "yesterday": "Yesterday"
+  },
+  "days": {
+    "monday": "Monday",
+    "tuesday": "Tuesday", 
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday"
+  },
+  "months": {
+    "january": "January",
+    "february": "February",
+    "march": "March",
+    "april": "April",
+    "may": "May",
+    "june": "June",
+    "july": "July",
+    "august": "August",
+    "september": "September",
+    "october": "October",
+    "november": "November",
+    "december": "December"
+  }
+}

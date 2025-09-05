@@ -9,6 +9,8 @@ type AppAction =
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_USER'; payload: User | null }
   | { type: 'SET_LANGUAGE'; payload: 'en' | 'ar' }
+  | { type: 'SET_ARABIC_NUMERALS'; payload: boolean }
+  | { type: 'SET_FORCE_RTL'; payload: boolean }
   | { type: 'SET_TASKS'; payload: Task[] }
   | { type: 'ADD_TASK'; payload: Task }
   | { type: 'UPDATE_TASK'; payload: { id: number; updates: Partial<Task> } }
@@ -28,6 +30,8 @@ interface AppContextValue {
     setLoading: (loading: boolean) => void;
     setUser: (user: User | null) => void;
     setLanguage: (language: 'en' | 'ar') => void;
+    setArabicNumerals: (useArabicNumerals: boolean) => void;
+    setForceRTL: (forceRTL: boolean) => void;
     setTasks: (tasks: Task[]) => void;
     addTask: (task: Task) => void;
     updateTask: (id: number, updates: Partial<Task>) => void;
@@ -65,6 +69,8 @@ const initialState: AppState = {
   isLoading: false,
   user: null,
   language: 'en',
+  useArabicNumerals: false,
+  forceRTL: false,
 };
 
 /**
@@ -80,6 +86,12 @@ function appReducer(state: AppState, action: AppAction): AppState {
     
     case 'SET_LANGUAGE':
       return { ...state, language: action.payload };
+    
+    case 'SET_ARABIC_NUMERALS':
+      return { ...state, useArabicNumerals: action.payload };
+    
+    case 'SET_FORCE_RTL':
+      return { ...state, forceRTL: action.payload };
     
     case 'SET_TASKS':
       return { ...state, tasks: action.payload };
@@ -134,7 +146,9 @@ function validateAppState(value: any): value is Partial<AppState> {
     (value.isRecording === undefined || typeof value.isRecording === 'boolean') &&
     (value.selectedInterval === undefined || typeof value.selectedInterval === 'number') &&
     (value.isLoading === undefined || typeof value.isLoading === 'boolean') &&
-    (value.language === undefined || ['en', 'ar'].includes(value.language))
+    (value.language === undefined || ['en', 'ar'].includes(value.language)) &&
+    (value.useArabicNumerals === undefined || typeof value.useArabicNumerals === 'boolean') &&
+    (value.forceRTL === undefined || typeof value.forceRTL === 'boolean')
   );
 }
 
@@ -189,6 +203,12 @@ export function AppProvider({ children }: AppProviderProps) {
       if (persistedState.language) {
         dispatch({ type: 'SET_LANGUAGE', payload: persistedState.language });
       }
+      if (persistedState.useArabicNumerals !== undefined) {
+        dispatch({ type: 'SET_ARABIC_NUMERALS', payload: persistedState.useArabicNumerals });
+      }
+      if (persistedState.forceRTL !== undefined) {
+        dispatch({ type: 'SET_FORCE_RTL', payload: persistedState.forceRTL });
+      }
       if (persistedState.user) {
         dispatch({ type: 'SET_USER', payload: persistedState.user });
       }
@@ -202,18 +222,22 @@ export function AppProvider({ children }: AppProviderProps) {
         tasks: state.tasks,
         selectedInterval: state.selectedInterval,
         language: state.language,
+        useArabicNumerals: state.useArabicNumerals,
+        forceRTL: state.forceRTL,
         user: state.user,
       };
       // Use queued auto-save for performance optimization
       saveState(stateToSave).catch(console.error);
     }
-  }, [state.tasks, state.selectedInterval, state.language, state.user, storageLoading, saveState]);
+  }, [state.tasks, state.selectedInterval, state.language, state.useArabicNumerals, state.forceRTL, state.user, storageLoading, saveState]);
 
   // Action creators
   const actions = {
     setLoading: (loading: boolean) => dispatch({ type: 'SET_LOADING', payload: loading }),
     setUser: (user: User | null) => dispatch({ type: 'SET_USER', payload: user }),
     setLanguage: (language: 'en' | 'ar') => dispatch({ type: 'SET_LANGUAGE', payload: language }),
+    setArabicNumerals: (useArabicNumerals: boolean) => dispatch({ type: 'SET_ARABIC_NUMERALS', payload: useArabicNumerals }),
+    setForceRTL: (forceRTL: boolean) => dispatch({ type: 'SET_FORCE_RTL', payload: forceRTL }),
     setTasks: (tasks: Task[]) => dispatch({ type: 'SET_TASKS', payload: tasks }),
     addTask: (task: Task) => dispatch({ type: 'ADD_TASK', payload: task }),
     updateTask: (id: number, updates: Partial<Task>) => dispatch({ type: 'UPDATE_TASK', payload: { id, updates } }),

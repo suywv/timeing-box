@@ -11,6 +11,9 @@ import { useThemeValues } from '../context/ThemeContext';
 import { textStyles } from '../utils/styleUtils';
 import { Task } from '../types';
 import TaskActions from './TaskActions';
+import { useTranslation } from '../hooks/useTranslation';
+import { useAppContext } from '../context/AppContext';
+import { convertToArabicNumerals } from '../utils';
 
 interface TaskCardProps {
   task: Task;
@@ -40,6 +43,8 @@ export default function TaskCard({
   onDelete,
 }: TaskCardProps) {
   const theme = useThemeValues();
+  const { state } = useAppContext();
+  const { t, isRTL } = useTranslation();
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
 
@@ -71,7 +76,7 @@ export default function TaskCard({
     card: {
       backgroundColor: theme.colors.surface.primary,
       borderRadius: theme.layout.borderRadius.base,
-      borderLeftWidth: 4,
+      ...(isRTL ? { borderRightWidth: 4 } : { borderLeftWidth: 4 }),
       ...theme.layout.shadow.base,
       overflow: 'hidden',
     },
@@ -79,13 +84,13 @@ export default function TaskCard({
       padding: theme.spacing.md,
     },
     cardHeader: {
-      flexDirection: 'row',
+      flexDirection: isRTL ? 'row-reverse' : 'row',
       justifyContent: 'space-between',
       alignItems: 'flex-start',
       marginBottom: theme.spacing.sm,
     },
     titleContainer: {
-      flexDirection: 'row',
+      flexDirection: isRTL ? 'row-reverse' : 'row',
       alignItems: 'center',
       flex: 1,
     },
@@ -125,7 +130,7 @@ export default function TaskCard({
       color: theme.colors.text.tertiary,
     },
     taskDetails: {
-      flexDirection: 'row',
+      flexDirection: isRTL ? 'row-reverse' : 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
       marginBottom: theme.spacing.sm,
@@ -151,8 +156,14 @@ export default function TaskCard({
   
   const startTime = `${task.startSlot.toString().padStart(2, '0')}:00`;
   const endTime = `${(task.startSlot + task.duration).toString().padStart(2, '0')}:00`;
-  const timeDisplay = `${startTime} - ${endTime}`;
-  const durationText = `${task.duration} ${task.duration === 1 ? 'hour' : 'hours'}`;
+  let timeDisplay = `${startTime} - ${endTime}`;
+  let durationText = `${task.duration} ${task.duration === 1 ? t('task.hour') : t('task.hours')}`;
+  
+  // Apply Arabic numerals if enabled
+  if (state.useArabicNumerals && state.language === 'ar') {
+    timeDisplay = convertToArabicNumerals(timeDisplay);
+    durationText = convertToArabicNumerals(durationText);
+  }
 
   const handlePress = () => {
     onPress?.(task);
@@ -197,7 +208,7 @@ export default function TaskCard({
             <View style={styles.statusContainer}>
               <View style={[styles.statusBadge, task.completed ? styles.completedBadge : styles.pendingBadge]}>
                 <Text style={styles.statusText}>
-                  {task.completed ? 'Completed' : 'Pending'}
+                  {task.completed ? t('task.completed') : t('task.pending')}
                 </Text>
               </View>
             </View>

@@ -12,7 +12,9 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useThemeValues } from '../context/ThemeContext';
 import { textStyles } from '../utils/styleUtils';
-import { formatArabicDateShort } from '../utils';
+import { formatArabicDateShort, convertToArabicNumerals } from '../utils';
+import { useTranslation } from '../hooks/useTranslation';
+import { useAppContext } from '../context/AppContext';
 import { 
   TOUCH_TARGETS, 
   getFontSize, 
@@ -33,8 +35,9 @@ export default function Header({
   onCalendarPress,
 }: HeaderProps) {
   const theme = useThemeValues();
+  const { state } = useAppContext();
+  const { t, isRTL } = useTranslation();
   const currentDate = new Date();
-  const isRTL = I18nManager.isRTL;
 
   const safeArea = getSafeAreaPadding();
   
@@ -148,12 +151,21 @@ export default function Header({
             end={{ x: 1, y: 0 }}
             style={styles.titleGradient}
           >
-            <Text style={styles.appTitle}>جوهرة الوقت</Text>
+            <Text style={styles.appTitle}>{t('app.title')}</Text>
           </LinearGradient>
 
-          {/* Current date in Arabic */}
+          {/* Current date */}
           <Text style={styles.dateText}>
-            {formatArabicDateShort(currentDate)}
+            {state.language === 'ar' 
+              ? (state.useArabicNumerals 
+                  ? convertToArabicNumerals(formatArabicDateShort(currentDate))
+                  : formatArabicDateShort(currentDate))
+              : currentDate.toLocaleDateString('en-US', {
+                  weekday: 'short',
+                  month: 'short',
+                  day: 'numeric',
+                })
+            }
           </Text>
         </View>
 
@@ -174,7 +186,12 @@ export default function Header({
       {/* Grid indicator */}
       <View style={styles.gridIndicator}>
         <View style={styles.gridDot} />
-        <Text style={styles.gridText}>شبكة 4×6 (24 ساعة)</Text>
+        <Text style={styles.gridText}>
+          {state.useArabicNumerals && state.language === 'ar' 
+            ? convertToArabicNumerals(t('app.gridIndicator'))
+            : t('app.gridIndicator')
+          }
+        </Text>
         <View style={styles.gridDot} />
       </View>
     </View>

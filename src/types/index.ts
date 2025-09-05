@@ -43,6 +43,10 @@ export interface AppState {
   user: User | null;
   /** App language setting */
   language: 'en' | 'ar';
+  /** Use Arabic numerals (Eastern Arabic numerals) */
+  useArabicNumerals: boolean;
+  /** Force RTL layout regardless of system setting */
+  forceRTL: boolean;
 }
 
 /**
