@@ -4,7 +4,6 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
   I18nManager,
   Platform,
 } from 'react-native';
@@ -14,8 +13,15 @@ import * as Haptics from 'expo-haptics';
 import { useThemeValues } from '../context/ThemeContext';
 import { textStyles } from '../utils/styleUtils';
 import { formatArabicDateShort } from '../utils';
+import { 
+  TOUCH_TARGETS, 
+  getFontSize, 
+  getResponsiveSpacing,
+  getSafeAreaPadding,
+  RESPONSIVE_VALUES,
+  DEVICE_INFO
+} from '../utils/responsiveUtils';
 
-const { width: screenWidth } = Dimensions.get('window');
 
 interface HeaderProps {
   onSettingsPress?: () => void;
@@ -30,27 +36,30 @@ export default function Header({
   const currentDate = new Date();
   const isRTL = I18nManager.isRTL;
 
-  // Create dynamic styles using theme
+  const safeArea = getSafeAreaPadding();
+  
+  // Create dynamic styles using theme and responsive utilities
   const styles = StyleSheet.create({
     container: {
       backgroundColor: theme.colors.surface.primary,
-      paddingTop: Platform.OS === 'ios' ? 50 : 35,
-      paddingHorizontal: theme.spacing.md,
-      paddingBottom: theme.spacing.md,
+      paddingTop: safeArea.top,
+      paddingHorizontal: getResponsiveSpacing(theme.spacing.md),
+      paddingBottom: getResponsiveSpacing(theme.spacing.md),
       borderBottomWidth: 1,
       borderBottomColor: theme.colors.border.light,
       ...theme.layout.shadow.base,
+      height: RESPONSIVE_VALUES.headerHeight,
     },
     headerContent: {
       flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      marginBottom: theme.spacing.sm,
+      marginBottom: getResponsiveSpacing(theme.spacing.sm),
     },
     iconButton: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
+      width: TOUCH_TARGETS.ICON_BUTTON,
+      height: TOUCH_TARGETS.ICON_BUTTON,
+      borderRadius: TOUCH_TARGETS.ICON_BUTTON / 2,
       backgroundColor: theme.colors.background.primary,
       alignItems: 'center',
       justifyContent: 'center',
@@ -60,17 +69,17 @@ export default function Header({
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
-      marginHorizontal: theme.spacing.md,
+      marginHorizontal: getResponsiveSpacing(theme.spacing.md),
     },
     titleGradient: {
-      paddingHorizontal: theme.spacing.lg,
-      paddingVertical: theme.spacing.sm,
+      paddingHorizontal: getResponsiveSpacing(theme.spacing.lg),
+      paddingVertical: getResponsiveSpacing(theme.spacing.sm),
       borderRadius: theme.layout.borderRadius.md,
       marginBottom: 4,
     },
     appTitle: {
       ...textStyles.title,
-      fontSize: Math.min(24, screenWidth * 0.06),
+      fontSize: getFontSize(DEVICE_INFO.isTablet ? 28 : DEVICE_INFO.isSmallDevice ? 18 : 24),
       color: theme.colors.text.inverse,
       textAlign: 'center',
       includeFontPadding: false,
@@ -78,7 +87,7 @@ export default function Header({
     },
     dateText: {
       ...textStyles.secondary,
-      fontSize: Math.min(14, screenWidth * 0.035),
+      fontSize: getFontSize(DEVICE_INFO.isTablet ? 16 : 14),
       textAlign: 'center',
       fontWeight: '500',
     },
@@ -86,18 +95,18 @@ export default function Header({
       flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      paddingTop: theme.spacing.xs,
+      paddingTop: getResponsiveSpacing(theme.spacing.xs),
     },
     gridDot: {
-      width: 4,
-      height: 4,
-      borderRadius: 2,
+      width: DEVICE_INFO.isTablet ? 6 : 4,
+      height: DEVICE_INFO.isTablet ? 6 : 4,
+      borderRadius: DEVICE_INFO.isTablet ? 3 : 2,
       backgroundColor: theme.colors.primary,
-      marginHorizontal: theme.spacing.sm,
+      marginHorizontal: getResponsiveSpacing(theme.spacing.sm),
     },
     gridText: {
       ...textStyles.caption,
-      fontSize: Math.min(12, screenWidth * 0.03),
+      fontSize: getFontSize(DEVICE_INFO.isTablet ? 14 : 12),
       fontWeight: '600',
       textAlign: 'center',
     },
@@ -125,7 +134,7 @@ export default function Header({
         >
           <Ionicons
             name={isRTL ? 'calendar' : 'settings'}
-            size={24}
+            size={RESPONSIVE_VALUES.iconSize}
             color={theme.colors.text.primary}
           />
         </TouchableOpacity>
@@ -156,7 +165,7 @@ export default function Header({
         >
           <Ionicons
             name={isRTL ? 'settings' : 'calendar'}
-            size={24}
+            size={RESPONSIVE_VALUES.iconSize}
             color={theme.colors.text.primary}
           />
         </TouchableOpacity>
